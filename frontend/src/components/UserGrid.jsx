@@ -2,12 +2,29 @@ import { Flex, Grid, Spinner, Text } from "@chakra-ui/react";
 
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
-
+import { BASE_URL } from "../App";
 
 const UserGrid = ({ users, setUsers }) => {
     const [isLoading, setIsLoading] = useState(true);
 
+    useEffect(() => {
+        const getUsers = async () => {
+            try {
+                const res = await fetch(BASE_URL + "/friends");
+                const data = await res.json();
 
+                if (!res.ok) {
+                    throw new Error(data.error);
+                }
+                setUsers(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        getUsers();
+    }, [setUsers]);
 
     console.log(users);
     return (
@@ -20,12 +37,12 @@ const UserGrid = ({ users, setUsers }) => {
                 }}
                 gap={4}
             >
-                {/* {users.map((user) => (
+                {users.map((user) => (
                     <UserCard key={user.id} user={user} setUsers={setUsers} />
-                ))} */}
+                ))}
             </Grid>
 
-            {/* {isLoading && (
+            {isLoading && (
                 <Flex justifyContent={"center"}>
                     <Spinner size={"xl"} />
                 </Flex>
@@ -39,7 +56,7 @@ const UserGrid = ({ users, setUsers }) => {
                         No friends found.
                     </Text>
                 </Flex>
-            )} */}
+            )}
         </>
     );
 };

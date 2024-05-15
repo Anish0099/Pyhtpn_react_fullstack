@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
-
+import { BASE_URL } from "../App";
 
 function EditModal({ setUsers, user }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -30,7 +30,42 @@ function EditModal({ setUsers, user }) {
     });
     const toast = useToast();
 
-
+    const handleEditUser = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const res = await fetch(BASE_URL + "/friends/" + user.id, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(inputs),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error);
+            }
+            setUsers((prevUsers) => prevUsers.map((u) => (u.id === user.id ? data : u)));
+            toast({
+                status: "success",
+                title: "Yayy! 🎉",
+                description: "Friend updated successfully.",
+                duration: 2000,
+                position: "top-center",
+            });
+            onClose();
+        } catch (error) {
+            toast({
+                status: "error",
+                title: "An error occurred.",
+                description: error.message,
+                duration: 4000,
+                position: "top-center",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <>
